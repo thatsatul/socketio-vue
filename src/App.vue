@@ -1,26 +1,23 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-</template>
-
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+// see vue-socketio-node in js_scripts
+import SocketioService from './services/socketio.service.js';
 
 export default {
   name: 'App',
-  components: {
-    HelloWorld
+  components: {},
+  created() {
+    SocketioService.setupSocketConnection();
+  },
+  beforeUnmount() {
+    SocketioService.disconnect();
+  },
+  methods: {
+    sendEvent() {
+      SocketioService.socketEmit('hello', 'world1');
+    }
   }
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<template>
+  <button v-on:click="sendEvent">Send</button>
+</template>
