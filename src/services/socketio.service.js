@@ -10,9 +10,12 @@ class SocketioService {
         token: 'abc'
       }
     });
-    this.socket.on('welcome', data => {
-      console.log(data);
-    });
+  }
+
+  subscribe(eventName, fn) {
+    this.socket.on(eventName, data => {
+      fn(data);
+    })
   }
 
   socketEmit(eventName, data) {
