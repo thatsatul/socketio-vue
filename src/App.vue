@@ -11,33 +11,33 @@ export default {
   created() {
     SocketioService.setupSocketConnection();
     SocketioService.subscribe('serverResponse', this.receiveEvent);
+    SocketioService.subscribe('bot_uttered', this.receiveEvent);
   },
   beforeUnmount() {
     SocketioService.disconnect();
   },
   data() {
     return {
-      mssgThread: [],
+      mssgThreads: [],
       userInp: '',
       fetchingNewData: false
     };
   },
   methods: {
-    sendEvent() {
+    sendEvent(userInp, fromTextField = true) {
       this.fetchingNewData = true;
       const newUserThread = {
-        mssg: 'From client',
-        val: this.userInp,
+        message: fromTextField ? this.userInp : userInp,
         source: 'user'
       }
-      this.mssgThread.push(newUserThread);
+      this.mssgThreads.push(newUserThread);
       SocketioService.socketEmit('clientInput', newUserThread);
+      // SocketioService.socketEmit('user_uttered', { message: userInp});
     },
     receiveEvent(thread) {
-      console.log(thread);
+      console.log('*********', thread);
       this.fetchingNewData = false;
-      this.mssgThread.push(thread);
-      console.log('Mssg thread : ', this.mssgThread);
+      this.mssgThreads.push(thread);
     }
   }
 }
@@ -45,11 +45,11 @@ export default {
 <template>
   <main>
     <div class="chat-section">
-      <Chatbot v-bind:chatbotThread="mssgThread"></Chatbot>
+      <Chatbot v-bind:chatbotThreads="mssgThreads"></Chatbot>
     </div>
     <div class="user-bottom">
-      <div v-if="fetchingNewData" class="fetchingNewData">Waiting ... </div>
-      <input type="text" v-model="userInp" class="userTextField"/>
+      <div v-if="fetchingNewData" class="fetching-new-data">Waiting ... </div>
+      <input type="text" v-model="userInp" class="user-text-field"/>
       <button v-on:click="sendEvent">Send</button>
     </div>
   </main>
@@ -73,11 +73,11 @@ export default {
     border: 1px solid #e8e1e1;
     margin: auto;
     background: #f4efef;
-    min-height: 600px;
+    min-height: 96vh;
     position: relative;
     min-width: 380px;
   }
-  .userTextField {
+  .user-text-field {
     display: inline-block;
     width: 76%;
     margin-right: 10px;
@@ -91,7 +91,7 @@ export default {
     bottom: 0;
     width: 100%;
   }
-  .fetchingNewData {
+  .fetching-new-data {
     text-align: center;
     margin-bottom: 10px;
   }
